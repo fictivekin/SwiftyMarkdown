@@ -248,18 +248,45 @@ open class SwiftyMarkdown {
 			
 			var linkText : NSString?
 			var linkURL : NSString?
-			let linkCharacters = CharacterSet(charactersIn: "]()")
+            var closingCharacters : NSString?
+            let linkTextCharacters = CharacterSet(charactersIn: "]")
 			
-			scanner.scanUpToCharacters(from: linkCharacters, into: &linkText)
-			scanner.scanCharacters(from: linkCharacters, into: nil)
-			scanner.scanUpToCharacters(from: linkCharacters, into: &linkURL)
-			scanner.scanCharacters(from: linkCharacters, into: nil)
-			
+			scanner.scanUpToCharacters(from: linkTextCharacters, into: &linkText)
+			scanner.scanCharacters(from: linkTextCharacters, into: &closingCharacters)
+
+            let currentIndexInt = scanner.scanLocation
+            
+            if currentIndexInt < string.characters.count {
+                let currentIndex = scanner.string.index(scanner.string.startIndex, offsetBy: currentIndexInt)
+                let nextIndex = scanner.string.index(scanner.string.startIndex, offsetBy: currentIndexInt + 1)
+                let singleCharacterRange = currentIndex..<nextIndex
+
+                if scanner.string.substring(with: singleCharacterRange) == "(" {
+                    let linkURLCharacters = CharacterSet(charactersIn: "()")
+                    scanner.scanCharacters(from: linkURLCharacters, into: nil)
+                    scanner.scanUpToCharacters(from: linkURLCharacters, into: &linkURL)
+                    scanner.scanCharacters(from: linkURLCharacters, into: nil)
+                }
+            }
 			
 			if let hasLink = linkText, let hasURL = linkURL {
 				followingString = hasLink
 				attributes[NSLinkAttributeName] = hasURL
 			} else {
+                // [text] or <text> with no following (http://...) will be shown with no link style
+                var unescapedString: String = ""
+                
+                unescapedString = results.foundCharacters
+                
+                if let linkText = linkText {
+                    unescapedString = unescapedString + (linkText as String)
+                }
+                if let closingCharacters = closingCharacters {
+                    unescapedString = unescapedString + (closingCharacters as String)
+                }
+                
+                followingString = unescapedString as NSString?
+                
 				style = .none
 			}
 		} else {
