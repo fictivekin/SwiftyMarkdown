@@ -41,8 +41,8 @@ enum LineStyle : Int {
 			return .bold
 		} else if string == "*" || string == "_" {
 			return .italic
-		} else if string == "`" {
-			return .code
+//		} else if string == "`" {
+//			return .code
 		} else if string == "["  {
 			return .link
 		} else {
@@ -92,7 +92,7 @@ open class SwiftyMarkdown {
 
 	
 	let string : String
-	let instructionSet = CharacterSet(charactersIn: "[\\*_`")
+	let instructionSet = CharacterSet(charactersIn: "[\\*_")
 	
 	/**
 	
