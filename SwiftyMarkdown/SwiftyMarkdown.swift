@@ -134,7 +134,7 @@ open class SwiftyMarkdown {
 		
 		var lineCount = 0
 		
-		let headings = ["# ", "## ", "### ", "#### ", "##### ", "###### "]
+        let headings: [String] = [] //["# ", "## ", "### ", "#### ", "##### ", "###### "]
 		
 		var skipLine = false
 		for theLine in lines {
