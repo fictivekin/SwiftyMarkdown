@@ -275,7 +275,7 @@ open class SwiftyMarkdown {
 			
 			if let hasLink = linkText, let hasURL = linkURL {
 				followingString = hasLink
-				attributes[NSLinkAttributeName] = hasURL
+				attributes[NSLinkAttributeName] = NSURL(string: hasURL as String)
 			} else {
                 // [text] or <text> with no following (http://...) will be shown with no link style
                 var unescapedString: String = ""
