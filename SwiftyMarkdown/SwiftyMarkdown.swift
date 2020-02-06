@@ -23,7 +23,7 @@ A struct defining the styles that can be applied to the parsed Markdown. The `fo
 If that is not set, then the system default will be used.
 */
 public struct BasicStyles : FontProperties {
-	public var fontName : String? = UIFont.preferredFont(forTextStyle: UIFontTextStyle.body).fontName
+	public var fontName : String? = UIFont.preferredFont(forTextStyle: .body).fontName
     public var fontSize: CGFloat?
     public var fontWeight: CGFloat?
 	public var color = UIColor.black
@@ -185,7 +185,7 @@ open class SwiftyMarkdown {
 			}
 			
 			// If this is not an empty line...
-			if line.characters.count > 0 {
+			if line.count > 0 {
 				
 				// ...start scanning
 				let scanner = Scanner(string: line)
@@ -247,7 +247,7 @@ open class SwiftyMarkdown {
 
 		var style = LineStyle.styleFromString(results.foundCharacters)
 		
-		var attributes = [String : AnyObject]()
+		var attributes = [NSAttributedString.Key: Any]()
 		if style == .link {
 			
 			var linkText : NSString?
@@ -260,12 +260,12 @@ open class SwiftyMarkdown {
 
             let currentIndexInt = scanner.scanLocation
             
-            if currentIndexInt < string.characters.count {
+            if currentIndexInt < string.count {
                 let currentIndex = scanner.string.index(scanner.string.startIndex, offsetBy: currentIndexInt)
                 let nextIndex = scanner.string.index(scanner.string.startIndex, offsetBy: currentIndexInt + 1)
                 let singleCharacterRange = currentIndex..<nextIndex
 
-                if scanner.string.substring(with: singleCharacterRange) == "(" {
+                if scanner.string[singleCharacterRange] == "(" {
                     let linkURLCharacters = CharacterSet(charactersIn: "()")
                     scanner.scanCharacters(from: linkURLCharacters, into: nil)
                     scanner.scanUpToCharacters(from: linkURLCharacters, into: &linkURL)
@@ -275,7 +275,7 @@ open class SwiftyMarkdown {
 			
 			if let hasLink = linkText, let hasURL = linkURL {
 				followingString = hasLink
-				attributes[NSLinkAttributeName] = NSURL(string: hasURL as String)
+				attributes[NSAttributedString.Key.link] = NSURL(string: hasURL as String)
 			} else {
                 // [text] or <text> with no following (http://...) will be shown with no link style
                 var unescapedString: String = ""
@@ -325,9 +325,9 @@ open class SwiftyMarkdown {
 		while matchedCharacters.contains("\\") {
 			if let hasRange = matchedCharacters.range(of: "\\") {
 				
-				if matchedCharacters.characters.count > 1 {
+				if matchedCharacters.count > 1 {
 					let newRange = hasRange.lowerBound..<matchedCharacters.index(hasRange.upperBound, offsetBy: 1)
-					foundCharacters = foundCharacters + matchedCharacters.substring(with: newRange).replacingOccurrences(of: "\\", with: "")
+					foundCharacters = foundCharacters + matchedCharacters[newRange].replacingOccurrences(of: "\\", with: "")
 					
 					matchedCharacters.removeSubrange(newRange)
 				} else {
@@ -345,8 +345,8 @@ open class SwiftyMarkdown {
 	
 	// Make H1
 	
-	func attributedStringFromString(_ string : String, withStyle style : LineStyle, attributes : [String : AnyObject] = [:] ) -> NSAttributedString {
-		let textStyle : UIFontTextStyle
+	func attributedStringFromString(_ string : String, withStyle style : LineStyle, attributes : [NSAttributedString.Key: Any] = [:] ) -> NSAttributedString {
+		let textStyle : UIFont.TextStyle
 		var fontName : String?
         var fontSize: CGFloat?
         var attributes = attributes
@@ -358,49 +358,49 @@ open class SwiftyMarkdown {
 			fontName = h1.fontName
             fontSize = h1.fontSize
 			if #available(iOS 9, *) {
-				textStyle = UIFontTextStyle.title1
+				textStyle = UIFont.TextStyle.title1
 			} else {
-				textStyle = UIFontTextStyle.headline
+				textStyle = UIFont.TextStyle.headline
 			}
-			attributes[NSForegroundColorAttributeName] = h1.color
+			attributes[NSAttributedString.Key.foregroundColor] = h1.color
 		case .h2:
 			fontName = h2.fontName
             fontSize = h2.fontSize
 			if #available(iOS 9, *) {
-				textStyle = UIFontTextStyle.title2
+				textStyle = UIFont.TextStyle.title2
 			} else {
-				textStyle = UIFontTextStyle.headline
+				textStyle = UIFont.TextStyle.headline
 			}
-			attributes[NSForegroundColorAttributeName] = h2.color
+			attributes[NSAttributedString.Key.foregroundColor] = h2.color
 		case .h3:
 			fontName = h3.fontName
             fontSize = h3.fontSize
 			if #available(iOS 9, *) {
-				textStyle = UIFontTextStyle.title2
+				textStyle = UIFont.TextStyle.title2
 			} else {
-				textStyle = UIFontTextStyle.subheadline
+				textStyle = UIFont.TextStyle.subheadline
 			}
-			attributes[NSForegroundColorAttributeName] = h3.color
+			attributes[NSAttributedString.Key.foregroundColor] = h3.color
 		case .h4:
 			fontName = h4.fontName
             fontSize = h4.fontSize
-			textStyle = UIFontTextStyle.headline
-			attributes[NSForegroundColorAttributeName] = h4.color
+			textStyle = UIFont.TextStyle.headline
+			attributes[NSAttributedString.Key.foregroundColor] = h4.color
 		case .h5:
 			fontName = h5.fontName
             fontSize = h5.fontSize
-			textStyle = UIFontTextStyle.subheadline
-			attributes[NSForegroundColorAttributeName] = h5.color
+			textStyle = UIFont.TextStyle.subheadline
+			attributes[NSAttributedString.Key.foregroundColor] = h5.color
 		case .h6:
 			fontName = h6.fontName
             fontSize = h6.fontSize
-			textStyle = UIFontTextStyle.footnote
-			attributes[NSForegroundColorAttributeName] = h6.color
+			textStyle = UIFont.TextStyle.footnote
+			attributes[NSAttributedString.Key.foregroundColor] = h6.color
 		default:
 			fontName = body.fontName
             fontSize = body.fontSize
-			textStyle = UIFontTextStyle.body
-			attributes[NSForegroundColorAttributeName] = body.color
+			textStyle = UIFont.TextStyle.body
+			attributes[NSAttributedString.Key.foregroundColor] = body.color
 			break
 		}
 		
@@ -409,13 +409,13 @@ open class SwiftyMarkdown {
 		if style == .code {
 			fontName = code.fontName
             fontSize = code.fontSize
-			attributes[NSForegroundColorAttributeName] = code.color
+			attributes[NSAttributedString.Key.foregroundColor] = code.color
 		}
 		
 		if style == .link {
 			fontName = link.fontName
             fontSize = link.fontSize
-			attributes[NSForegroundColorAttributeName] = link.color
+			attributes[NSAttributedString.Key.foregroundColor] = link.color
 		}
 		
 		// Fallback to body name
@@ -441,7 +441,7 @@ open class SwiftyMarkdown {
             finalSize = fontSize
         }
         else {
-            let styleSize = styleDescriptor.fontAttributes[UIFontDescriptorSizeAttribute] as? CGFloat ?? CGFloat(14)
+            let styleSize = styleDescriptor.fontAttributes[UIFontDescriptor.AttributeName.size] as? CGFloat ?? CGFloat(14)
             finalSize = styleSize
         }
 		
@@ -463,12 +463,12 @@ open class SwiftyMarkdown {
             }
             if #available(iOS 8.2, *) {
                 if let fontWeight = bold.fontWeight {
-                    finalFont = UIFont.systemFont(ofSize: finalSize, weight: fontWeight)
+                    finalFont = UIFont.systemFont(ofSize: finalSize, weight: UIFont.Weight(rawValue: fontWeight))
                 }
             }
         }
         
-		attributes[NSFontAttributeName] = finalFont
+		attributes[NSAttributedString.Key.font] = finalFont
 		
 		return NSAttributedString(string: string, attributes: attributes)
 	}
