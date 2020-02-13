@@ -433,7 +433,7 @@ open class SwiftyMarkdown {
 		let font = UIFont.preferredFont(forTextStyle: textStyle)
 		let styleDescriptor = font.fontDescriptor
         
-        var finalFont : UIFont
+        var finalFont: UIFont
         var finalSize: CGFloat
 
         // If the fontSize was set above, use it. Otherwise, use the size provied by the UIFontDescriptor.
@@ -445,12 +445,41 @@ open class SwiftyMarkdown {
             finalSize = styleSize
         }
 		
-		if let finalFontName = fontName, let font = UIFont(name: finalFontName, size: finalSize) {
-			finalFont = font
-		} else {
-			finalFont = UIFont.preferredFont(forTextStyle:  textStyle)
-		}
-		
+        if let fontName = fontName {
+            var resolvedSystemFont: UIFont? = nil
+            
+            if #available(iOS 8.2, *) {
+                let fontWeights: [UIFont.Weight] = [
+                    .ultraLight,
+                    .thin,
+                    .light,
+                    .regular,
+                    .medium,
+                    .semibold,
+                    .bold,
+                    .heavy,
+                    .black
+                ]
+
+                for weight in fontWeights {
+                    if fontName == UIFont.systemFont(ofSize: finalSize, weight: weight).fontName {
+                        resolvedSystemFont = UIFont.systemFont(ofSize: finalSize, weight: weight)
+                        break
+                    }
+                }
+            }
+                
+            if let resolvedSystemFont = resolvedSystemFont {
+                finalFont = resolvedSystemFont
+            }
+            else {
+                finalFont = UIFont(name: fontName, size: finalSize) ?? UIFont.systemFont(ofSize: finalSize)
+            }
+        }
+        else {
+            finalFont = UIFont.preferredFont(forTextStyle: textStyle)
+        }
+
 		let finalFontDescriptor = finalFont.fontDescriptor
 		if style == .italic {
 			if let italicDescriptor = finalFontDescriptor.withSymbolicTraits(.traitItalic) {
